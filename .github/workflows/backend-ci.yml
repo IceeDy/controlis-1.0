@@ -1,0 +1,99 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - .github/workflows/backend-ci.yml
+      - backend/**
+  pull_request:
+    paths:
+      - .github/workflows/backend-ci.yml
+      - backend/**
+
+concurrency:
+  group: backend-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: backend
+    env:
+      PYTHONUNBUFFERED: "1"
+      DATABASE_URL: postgresql+psycopg://controlis:controlis@127.0.0.1:5432/controlis
+      SECRET_KEY: change-me-controlis-secret-key-2026
+      FRONTEND_ORIGIN: http://localhost:3000
+      API_V1_PREFIX: /api/v1
+      ENVIRONMENT: local
+      ACCESS_TOKEN_EXPIRE_MINUTES: "480"
+      LOW_STOCK_THRESHOLD: "10"
+      ALGORITHM: HS256
+      CONTROLIS_TEST_COMMAND_MODE: local
+      CONTROLIS_TEST_POSTGRES_HOST: 127.0.0.1
+      CONTROLIS_TEST_POSTGRES_USER: controlis
+      CONTROLIS_TEST_POSTGRES_PASSWORD: controlis
+      CONTROLIS_TEST_POSTGRES_PORT: "5432"
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: controlis
+          POSTGRES_USER: controlis
+          POSTGRES_PASSWORD: controlis
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U controlis -d controlis"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[test]"
+
+      - name: Wait for PostgreSQL
+        run: |
+          python - <<'PY'
+          import time
+          import psycopg
+
+          dsn = "dbname=controlis user=controlis password=controlis host=127.0.0.1 port=5432"
+          deadline = time.time() + 60
+
+          while time.time() < deadline:
+              try:
+                  with psycopg.connect(dsn):
+                      print("PostgreSQL pronto para uso no CI.")
+                      break
+              except psycopg.OperationalError as exc:
+                  print(f"Aguardando PostgreSQL: {exc}")
+                  time.sleep(2)
+          else:
+              raise SystemExit("PostgreSQL não ficou pronto dentro do tempo esperado.")
+          PY
+
+      - name: Run safe migrations
+        run: controlis-migrate
+
+      - name: Seed baseline data
+        run: controlis-seed
+
+      - name: Run backend test suite
+        run: pytest -v

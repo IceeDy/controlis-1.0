@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f4f7fb;
+  --foreground: #10233f;
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-strong: #ffffff;
+  --surface-muted: #e9eef6;
+  --surface-accent: #d9f3e5;
+  --border: rgba(16, 35, 63, 0.09);
+  --border-strong: rgba(16, 35, 63, 0.16);
+  --primary: #123e72;
+  --primary-strong: #0b2e5a;
+  --primary-soft: #d9e6f8;
+  --secondary: #1aa06d;
+  --secondary-soft: #d9f6ea;
+  --danger: #c24646;
+  --warning: #c58b1c;
+  --text-soft: #5f7087;
+  --text-inverse: #f5f9ff;
+  --ring: rgba(18, 62, 114, 0.26);
+  --shadow-lg: 0 28px 60px rgba(15, 33, 60, 0.12);
+  --shadow-md: 0 18px 40px rgba(15, 33, 60, 0.08);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-accent: var(--surface-accent);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-soft: var(--secondary-soft);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-text-soft: var(--text-soft);
+  --color-text-inverse: var(--text-inverse);
+  --font-sans: var(--font-manrope);
+  --font-mono: var(--font-plex-mono);
+}
+
+.dark {
+  --background: #07111f;
+  --foreground: #edf4ff;
+  --surface: rgba(10, 24, 43, 0.82);
+  --surface-strong: #0c1c31;
+  --surface-muted: #12263f;
+  --surface-accent: rgba(28, 160, 109, 0.12);
+  --border: rgba(216, 230, 249, 0.1);
+  --border-strong: rgba(216, 230, 249, 0.16);
+  --primary: #4f8fe1;
+  --primary-strong: #80abeb;
+  --primary-soft: rgba(79, 143, 225, 0.16);
+  --secondary: #37c88d;
+  --secondary-soft: rgba(55, 200, 141, 0.14);
+  --danger: #f07d7d;
+  --warning: #f1bf63;
+  --text-soft: #93a7c3;
+  --text-inverse: #08111f;
+  --ring: rgba(79, 143, 225, 0.35);
+  --shadow-lg: 0 32px 72px rgba(0, 0, 0, 0.32);
+  --shadow-md: 0 18px 42px rgba(0, 0, 0, 0.22);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(26, 160, 109, 0.1), transparent 24%),
+    radial-gradient(circle at top right, rgba(18, 62, 114, 0.16), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 32%),
+    var(--background);
+  color: var(--foreground);
+  font-family: var(--font-manrope), sans-serif;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(18, 62, 114, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(18, 62, 114, 0.03) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.28), transparent 72%);
+}
+
+::selection {
+  background: rgba(26, 160, 109, 0.22);
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at top left, rgba(55, 200, 141, 0.12), transparent 22%),
+    radial-gradient(circle at top right, rgba(79, 143, 225, 0.18), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 36%),
+    var(--background);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.glass-panel {
+  background: var(--surface);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--shadow-md);
+}
+
+.elevated-panel {
+  background: var(--surface-strong);
+  box-shadow: var(--shadow-lg);
+}

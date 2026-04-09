@@ -1,0 +1,41 @@
+[project]
+name = "controlis-backend"
+version = "0.1.0"
+description = "Backend FastAPI do MVP SaaS Controlis"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.116.0,<1.0.0",
+  "uvicorn[standard]>=0.35.0,<1.0.0",
+  "sqlalchemy>=2.0.36,<3.0.0",
+  "alembic>=1.16.0,<2.0.0",
+  "psycopg[binary]>=3.2.0,<4.0.0",
+  "pydantic-settings>=2.10.0,<3.0.0",
+  "bcrypt>=4.0.1,<4.1.0",
+  "python-jose[cryptography]>=3.5.0,<4.0.0",
+  "passlib[bcrypt]>=1.7.4,<2.0.0",
+  "email-validator>=2.2.0,<3.0.0",
+]
+
+[project.optional-dependencies]
+test = [
+  "httpx>=0.28.1,<1.0.0",
+  "pytest>=8.4.0,<9.0.0",
+  "pytest-asyncio>=1.0.0,<2.0.0",
+]
+
+[project.scripts]
+controlis-seed = "scripts.seed:main"
+controlis-migrate = "scripts.migrate:main"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*", "scripts*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
