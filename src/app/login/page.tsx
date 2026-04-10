@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LockKeyhole, Mail, ShieldCheck } from "lucide-react";
@@ -18,6 +18,11 @@ import { useAuthStore } from "@/store/auth-store";
 export default function LoginPage() {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const isHydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const login = useAuthStore((state) => state.login);
 
@@ -116,7 +121,11 @@ export default function LoginPage() {
                 Faça login para acompanhar vendas, estoque e indicadores da sua operação.
               </p>
             </div>
-            <form className="space-y-5 px-6 py-6 sm:px-8 sm:py-8" onSubmit={form.handleSubmit(onSubmit)}>
+            <form
+              className="space-y-5 px-6 py-6 sm:px-8 sm:py-8"
+              method="post"
+              onSubmit={form.handleSubmit(onSubmit)}
+            >
               {errorMessage ? <StatusBanner message={errorMessage} variant="error" /> : null}
               <StatusBanner
                 message={`Acesso inicial: ${initialAccessCredentials.email} / ${initialAccessCredentials.password}`}
@@ -130,6 +139,7 @@ export default function LoginPage() {
                 <div className="relative">
                   <Mail className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-text-soft" />
                   <Input
+                    autoComplete="email"
                     id="email"
                     placeholder="voce@empresa.com.br"
                     className="pl-11"
@@ -145,6 +155,7 @@ export default function LoginPage() {
                 <div className="relative">
                   <LockKeyhole className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-text-soft" />
                   <Input
+                    autoComplete="current-password"
                     id="password"
                     type="password"
                     placeholder="Digite sua senha"
@@ -153,7 +164,13 @@ export default function LoginPage() {
                   />
                 </div>
               </FormField>
-              <Button className="w-full" loading={form.formState.isSubmitting} size="lg" type="submit">
+              <Button
+                className="w-full"
+                disabled={!isHydrated}
+                loading={form.formState.isSubmitting}
+                size="lg"
+                type="submit"
+              >
                 Entrar
               </Button>
             </form>

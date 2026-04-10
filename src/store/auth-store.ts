@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { clearStoredToken, getStoredToken, setStoredToken } from "@/lib/api";
+import { clearStoredToken, getStoredToken, isTokenExpired, setStoredToken } from "@/lib/api";
 import { authService } from "@/services/auth.service";
 import type { AuthSession, LoginPayload } from "@/types/auth";
 import type { Company } from "@/types/company";
@@ -71,7 +71,7 @@ export const useAuthStore = create<AuthState>()(
 
         const storedToken = token ?? getStoredToken();
 
-        if (!storedToken) {
+        if (!storedToken || isTokenExpired(storedToken)) {
           clearStoredToken();
           set({
             token: null,

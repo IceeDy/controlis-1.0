@@ -19,6 +19,48 @@ function isBrowser() {
   return typeof window !== "undefined";
 }
 
+function decodeBase64Url(value: string) {
+  if (!isBrowser() || typeof window.atob !== "function") {
+    return null;
+  }
+
+  const normalizedValue = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padding = normalizedValue.length % 4;
+  const paddedValue = padding === 0 ? normalizedValue : normalizedValue.padEnd(normalizedValue.length + (4 - padding), "=");
+
+  try {
+    return window.atob(paddedValue);
+  } catch {
+    return null;
+  }
+}
+
+export function isTokenExpired(token: string) {
+  const [, payload] = token.split(".");
+
+  if (!payload) {
+    return true;
+  }
+
+  const decodedPayload = decodeBase64Url(payload);
+
+  if (!decodedPayload) {
+    return true;
+  }
+
+  try {
+    const parsedPayload = JSON.parse(decodedPayload) as { exp?: number };
+
+    if (typeof parsedPayload.exp !== "number") {
+      return false;
+    }
+
+    return parsedPayload.exp * 1000 <= Date.now();
+  } catch {
+    return true;
+  }
+}
+
 export function getStoredToken() {
   if (!isBrowser()) {
     return null;
